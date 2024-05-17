@@ -5,7 +5,7 @@ import { create } from "zustand"
 export type Conversation = {
     _id: Id<'conversations'>;
     image?: string;
-    participant: Id<'users'>[];
+    participants: Id<'users'>[];
     isGroup: boolean;
     name?: string;
     groupImage?: string;

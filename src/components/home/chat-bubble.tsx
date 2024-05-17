@@ -1,14 +1,16 @@
 type ChatBubbleProps = {
 	message: IMessage;
 	me: any;
+	previousMessage?: IMessage
 }
 
 import { MessageSeenSvg } from "@/lib/svgs";
 import { IMessage, useConversationStore } from "@/store/chat-store";
 import React from "react";
 import ChatBubbleAvatar from "./chat-bubble-avatar";
+import DateIndicator from "./date-indicator";
 
-const ChatBubble = ({me,message}:ChatBubbleProps) => {
+const ChatBubble = ({message,me,previousMessage}:ChatBubbleProps) => {
 
 	const date = new Date(message._creationTime);
 	const hour = date.getHours().toString().padStart(2, "0");
@@ -16,7 +18,7 @@ const ChatBubble = ({me,message}:ChatBubbleProps) => {
 	const time = `${hour}:${minute}`;
 
 	const { selectedConversation } = useConversationStore()
-	const isMember = selectedConversation?.participant?.includes(message.sender?._id) || false;
+	const isMember = selectedConversation?.participants.includes(message.sender?._id) || false;
 	const isGroup = selectedConversation?.isGroup
 	const fromMe = message.sender._id === me._id
 	const bgClass = fromMe ? 'bg-green-chat' : 'bg-white dark:bg-gray-primary'
@@ -24,10 +26,10 @@ const ChatBubble = ({me,message}:ChatBubbleProps) => {
 	if(!fromMe) {
 		return (
 			<>
+			<DateIndicator message={message} previousMessage={previousMessage} />
 			<div className="flex gap-1 w-2/3">
-				<ChatBubbleAvatar isGroup={isGroup} isMember={isMember} message={message}
-				/>
-				<div className={`flex z-20 max-w-fit px-2 pt-1 roundend-md shadow-md relative ${bgClass}`}>
+				<ChatBubbleAvatar isGroup={isGroup} isMember={isMember} message={message} />
+				<div className={`flex z-20 max-w-fit px-2 pt-1 rounded-md shadow-md relative ${bgClass}`}>
 					<OtherMessageIndicator />
 					<TextMessage message={message} />
 					<MessageTime time={time} fromMe={fromMe}
@@ -39,8 +41,9 @@ const ChatBubble = ({me,message}:ChatBubbleProps) => {
 	}
 	return (
 		<>
+		<DateIndicator message={message} previousMessage={previousMessage} />
 		<div className="flex gap-1 w-2/3 ml-auto">
-				<div className={`flex flex-col z-20 max-w-fit px-2 pt-1 roundend-md shadow-md ml-auto relative ${bgClass}`}>
+				<div className={`flex flex-col z-20 max-w-fit px-2 pt-1 rounded-md shadow-md ml-auto relative ${bgClass}`}>
 					<SelfMessageIndicator />
 					<TextMessage message={message} />
 					<MessageTime time={time} fromMe={fromMe}
