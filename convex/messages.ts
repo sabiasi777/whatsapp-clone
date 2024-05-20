@@ -1,5 +1,6 @@
 import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { api } from "./_generated/api";
 
 
 export const sendTextMessage = mutation({
@@ -42,8 +43,31 @@ export const sendTextMessage = mutation({
         })
 
         // TODO => add @gpt check later
+		if(args.content.startsWith('@gpt')) {
+			// Schedule the chat action to run immediately
+			await ctx.scheduler.runAfter(0, api.openai.chat, {
+				messageBody: args.content,
+				conversation: args.conversation
+			})
+		}
     }
 })
+
+export const sendChatGPTMessage = mutation({
+	args: {
+		content: v.string(),
+		conversation: v.id('conversations')
+	},
+	handler: async (ctx, args) => {
+		await ctx.db.insert('messages', {
+			content: args.content,
+			sender: 'ChatGPT',
+			messageType: 'text',
+			conversation: args.conversation
+		})
+	}
+})
+
 
 export const sendImage = mutation({
 	args: { imgId: v.id("_storage"), sender: v.id("users"), conversation: v.id("conversations") },
@@ -107,8 +131,8 @@ export const getMessages = query({
 		const messagesWithSender = await Promise.all(
 			messages.map(async (message) => {
 				if (message.sender === "ChatGPT") {
-					const image = message.messageType === "text" ? "/gpt.png" : "dall-e.png";
-					return { ...message, sender: { name: "ChatGPT", image } };
+					//const image = message.messageType === "text" ? "/gpt.png" : "dall-e.png";
+					return { ...message, sender: { name: "ChatGPT", image: '/gpt.png' } };
 				}
 				let sender;
 				// Check if sender profile is in cache
