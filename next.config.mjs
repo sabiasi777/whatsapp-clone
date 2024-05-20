@@ -2,7 +2,8 @@
 const nextConfig = {
     images: {
         remotePatterns: [
-            {hostname: 'fastidious-ibex-667.convex.cloud'}
+            { hostname: 'fastidious-ibex-667.convex.cloud' },
+            { hostname: "oaidalleapiprodscus.blob.core.windows.net" }
         ]
     }
 };
