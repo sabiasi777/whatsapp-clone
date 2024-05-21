@@ -46,7 +46,8 @@ const UserListDialog = () => {
 			if(!isGroup) {
 				conversationId = await createConversation({
 					participants: [...selectedUsers, me?._id!],
-					isGroup: false
+					isGroup: false,
+					username:  users?.find((user) => user._id === selectedUsers[0])?.name
 				})
 			}else {
 				const postUrl = await generateUploadUrl()

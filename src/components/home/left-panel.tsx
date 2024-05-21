@@ -8,14 +8,17 @@ import { UserButton } from "@clerk/nextjs"
 import UserListDialog from "./user-list-dialog";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useConversationStore } from "@/store/chat-store";
 
 
 const LeftPanel = () => {
 
+	const [username, setUsername] = useState('')
+
 	const { isAuthenticated, isLoading } = useConvexAuth()
 	const conversations = useQuery(api.conversations.getMyConversations, isAuthenticated ? undefined : 'skip')
+	const users = useQuery(api.users.getUsers, isAuthenticated ? undefined : 'skip')
 
 	const { selectedConversation, setSelectedConversation } = useConversationStore()
 	useEffect(() => {
@@ -24,6 +27,19 @@ const LeftPanel = () => {
 			setSelectedConversation(null)
 		}
 	}, [conversations, selectedConversation, setSelectedConversation])
+
+
+	const filteredConversations = conversations?.filter((conversation) => {
+        if (username.trim() === '') {
+            return true; // Return all conversations if search input is empty
+        }
+        if (conversation.isGroup) {
+            return conversation.groupName?.toLowerCase().includes(username.toLowerCase());
+        } else {
+            return conversation.username?.toLowerCase().includes(username.toLowerCase())
+        }
+    });
+
 
 	if(isLoading) return null
 
@@ -50,6 +66,7 @@ const LeftPanel = () => {
 							type='text'
 							placeholder='Search or start a new chat'
 							className='pl-10 py-2 text-sm w-full rounded shadow-sm bg-gray-primary focus-visible:ring-transparent'
+							onChange={(e) => setUsername(e.target.value)}
 						/>
 					</div>
 					<ListFilter className='cursor-pointer' />
@@ -59,11 +76,11 @@ const LeftPanel = () => {
 			{/* Chat List */}
 			<div className='my-3 flex flex-col gap-0 max-h-[80%] overflow-auto'>
 				{/* Conversations will go here*/}
-                {conversations?.map((conversation) => (
+                {filteredConversations?.map((conversation) => (
                     <Conversation  key={conversation._id} conversation={conversation}/>
                 ))}
 
-				{conversations?.length === 0 && (
+				{filteredConversations?.length === 0 && (
 					<>
 						<p className='text-center text-gray-500 text-sm mt-3'>No conversations yet</p>
 						<p className='text-center text-gray-500 text-sm mt-3 '>

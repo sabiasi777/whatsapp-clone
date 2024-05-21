@@ -43,7 +43,8 @@ const ChatAvatarActions = ({ me, message }:ChatAvatarActionsProps) => {
         try{
             const conversationId = await createConversation({
                 isGroup: false,
-                participants: [me._id, message.sender._id]
+                participants: [me._id, message.sender._id],
+                username: message.sender.name
             })
 
             setSelectedConversation({

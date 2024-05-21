@@ -14,6 +14,7 @@ export default defineSchema({
         participants: v.array(v.id('users')),
         isGroup: v.boolean(),
         groupName: v.optional(v.string()),
+        username: v.optional(v.string()),
         groupImage: v.optional(v.string()),
         admin: v.optional(v.id('users'))
     }),

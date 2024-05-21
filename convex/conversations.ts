@@ -7,6 +7,7 @@ export const createConversation = mutation({
         participants: v.array(v.id('users')),
         isGroup: v.boolean(),
         groupName: v.optional(v.string()),
+        username: v.optional(v.string()),
         groupImage: v.optional(v.id('_storage')),
         admin: v.optional(v.id('users'))
     },
@@ -36,6 +37,7 @@ export const createConversation = mutation({
             participants: args.participants,
             isGroup: args.isGroup,
             groupName: args.groupName,
+            username: args.username,
             groupImage,
             admin: args.admin
         })
@@ -86,11 +88,17 @@ export const getMyConversations = query({
                 return {
                     ...userDetails,
                     ...conversation,
-                    lastMessage: lastMessage[0] || null
+                    lastMessage: lastMessage[0] || null,
+                    
                 }
             })
             
         )
+        conversationsWithDetails.sort((a, b) => {
+            const aLastMessageTime = a.lastMessage ? new Date(a.lastMessage._creationTime).getTime() : 0;
+            const bLastMessageTime = b.lastMessage ? new Date(b.lastMessage._creationTime).getTime() : 0;
+            return bLastMessageTime - aLastMessageTime;
+        })
 
         return conversationsWithDetails
     }
